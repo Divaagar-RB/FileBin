@@ -1,0 +1,2 @@
+web: gunicorn filebin_clone.run:app
+
