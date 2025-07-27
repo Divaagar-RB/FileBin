@@ -2,7 +2,8 @@ from backend import create_app, db
 from backend.models import Bin
 from datetime import datetime, timedelta, timezone
 import os
-
+import sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 UPLOAD_DIR = os.path.join(os.getcwd(), 'uploads')
 app = create_app()
 
