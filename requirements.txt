@@ -23,8 +23,5 @@ requests==2.32.3
 itsdangerous==2.1.2
 Werkzeug==2.3.7
 
-# Optional - Airflow with SMTP (requires Python 3.10 or 3.11)
-apache-airflow==2.7.2
-apache-airflow-providers-smtp==3.4.1
-apache-airflow-providers-common-sql==1.10.0
+
 hashids==1.3.1
