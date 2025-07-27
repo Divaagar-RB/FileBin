@@ -1,5 +1,5 @@
-from backend import create_app, db
-from backend.models import Bin
+from filebin_clone.backend import create_app, db
+from filebin_clone.backend.models import Bin
 from datetime import datetime, timedelta, timezone
 import os
 import sys
