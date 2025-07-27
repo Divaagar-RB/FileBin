@@ -3,13 +3,13 @@ import uuid
 import re
 from flask import request, render_template
 from flask import Blueprint, request, jsonify
-from backend.models import db, User
+from filebin_clone.backend.models import db, User
 from werkzeug.security import check_password_hash
 from flask_jwt_extended import create_access_token
 from flask import Blueprint, request, jsonify
 from werkzeug.security import generate_password_hash
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from backend.models import db, User
+from filebin_clone.backend.models import db, User
 
 auth_bp = Blueprint('auth', __name__)
 

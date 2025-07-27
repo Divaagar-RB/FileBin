@@ -6,8 +6,8 @@ import shutil
 from flask import send_file
 from flask import Blueprint, request, jsonify, send_from_directory, current_app
 from werkzeug.utils import secure_filename
-from backend.models import Bin, File
-from backend.extensions import db
+from filebin_clone.backend.models import Bin, File
+from filebin_clone.backend.extensions import db
 from hashids import Hashids
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
