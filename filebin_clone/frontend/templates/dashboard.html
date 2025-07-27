@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - FileBin</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+      color: #333;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .header {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 30px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .header h1 {
+      font-size: 28px;
+      font-weight: 700;
+      color: #2c3e50;
+      margin: 0;
+    }
+
+    .user-section {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    #userInfo {
+      background: #e8f4fd;
+      color: #1565c0;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 500;
+      border: 1px solid #bbdefb;
+    }
+
+    .logout-btn {
+      background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+    }
+
+    .logout-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+    }
+
+    .main-content {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+      margin-bottom: 30px;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 16px;
+      padding: 32px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #667eea, #764ba2);
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+    }
+
+    .card h3 {
+      font-size: 20px;
+      font-weight: 600;
+      color: #2c3e50;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .upload-card {
+      position: relative;
+    }
+
+    .file-input-wrapper {
+      position: relative;
+      display: inline-block;
+      width: 100%;
+      margin-bottom: 20px;
+    }
+
+    .file-input {
+      width: 100%;
+      padding: 16px;
+      border: 2px dashed #cbd5e0;
+      border-radius: 12px;
+      background: #f8fafc;
+      color: #4a5568;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 14px;
+      text-align: center;
+    }
+
+    .file-input:hover {
+      border-color: #667eea;
+      background: #edf2f7;
+    }
+
+    .file-input:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .upload-btn {
+      width: 100%;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      border: none;
+      padding: 14px 24px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+
+    .upload-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 25px rgba(102, 126, 234, 0.4);
+    }
+
+    .upload-btn:active {
+      transform: translateY(0);
+    }
+
+    .upload-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .result-card {
+      grid-column: 1 / -1;
+    }
+
+    #uploadResult {
+      padding: 16px;
+      border-radius: 8px;
+      margin-top: 16px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+
+    .success-message {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    .error-message {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    .loading {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .loading::after {
+      content: '';
+      width: 16px;
+      height: 16px;
+      border: 2px solid #667eea;
+      border-top: 2px solid transparent;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .icon {
+      font-size: 20px;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .main-content {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+
+      .header {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .card {
+        padding: 24px;
+      }
+
+      body {
+        padding: 15px;
+      }
+
+      .header h1 {
+        font-size: 24px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .card {
+        padding: 20px;
+      }
+
+      .header {
+        padding: 20px;
+      }
+
+      .user-section {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+
+    /* Animations */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .card {
+      animation: fadeInUp 0.6s ease forwards;
+    }
+
+    .card:nth-child(2) {
+      animation-delay: 0.1s;
+    }
+
+    .result-card {
+      animation-delay: 0.2s;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header Section -->
+    <div class="header">
+      <h1>📁 FileBin Dashboard</h1>
+      <div class="user-section">
+        <p id="userInfo" class="loading">Loading user...</p>
+        <form method="POST" action="{{ url_for('main.logout') }}" style="margin: 0;">
+          <button type="submit" class="logout-btn">Logout</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <!-- Upload Card -->
+      <div class="card upload-card">
+        <h3><span class="icon">📤</span> Upload Files</h3>
+        <form id="uploadForm" enctype="multipart/form-data">
+          <div class="file-input-wrapper">
+            <input type="file" name="file" multiple class="file-input" 
+                   placeholder="Choose files or drag and drop">
+          </div>
+          <button type="submit" class="upload-btn">
+            <span id="uploadBtnText">Upload Files</span>
+          </button>
+        </form>
+      </div>
+
+      <!-- Quick Actions Card -->
+      <div class="card">
+        <h3><span class="icon">⚡</span> Quick Actions</h3>
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+          <button onclick="document.querySelector('input[type=file]').click()" 
+                  style="padding: 12px; background: #e3f2fd; color: #1565c0; border: 1px solid #bbdefb; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+            📁 Browse Files
+          </button>
+          <button onclick="window.location.reload()" 
+                  style="padding: 12px; background: #f3e5f5; color: #7b1fa2; border: 1px solid #ce93d8; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+            🔄 Refresh Dashboard
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Upload Result Card -->
+    <div class="card result-card">
+      <h3><span class="icon">📊</span> Upload Status</h3>
+      <div id="uploadResult">
+        <p style="color: #666; font-style: italic;">No uploads yet. Select files above to get started!</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  const token = "{{ session['access_token'] }}";
+  
+  // Fetch user info
+  fetch("/auth/me", {
+    method: "GET",
+    headers: {
+      "Authorization": "Bearer " + token
+    }
+  })
+  .then(res => res.json())
+  .then(user => {
+    if (user.username) {
+      document.getElementById("userInfo").innerText = `👤 ${user.username}`;
+      document.getElementById("userInfo").classList.remove("loading");
+    } else {
+      document.getElementById("userInfo").innerText = "❌ Failed to fetch user info.";
+      document.getElementById("userInfo").classList.remove("loading");
+    }
+  })
+  .catch(err => {
+    console.error("Failed to fetch /auth/me:", err);
+    document.getElementById("userInfo").innerText = "❌ Failed to fetch user.";
+    document.getElementById("userInfo").classList.remove("loading");
+  });
+
+  // Handle file upload
+  document.getElementById("uploadForm").addEventListener("submit", function (event) {
+    event.preventDefault();
+
+    const formData = new FormData(this);
+    const uploadBtn = document.querySelector('.upload-btn');
+    const uploadBtnText = document.getElementById('uploadBtnText');
+    const uploadResult = document.getElementById('uploadResult');
+
+    // Show loading state
+    uploadBtn.disabled = true;
+    uploadBtnText.innerHTML = '<span class="loading">Uploading...</span>';
+
+    fetch("http://localhost:5000/upload", {
+      method: "POST",
+      headers: {
+        "Authorization": "Bearer " + token
+      },
+      body: formData
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error("Upload failed");
+      }
+      return response.json();
+    })
+    .then(data => {
+      if (data.bin_id) {
+        uploadResult.innerHTML = `<p class="success-message">✅ Upload successful! Redirecting to your files...</p>`;
+        setTimeout(() => {
+          window.location.href = `/view/bin/${data.bin_id}`;
+        }, 1500);
+      } else {
+        uploadResult.innerHTML = `<p class="error-message">❌ Upload failed: ${data.error || "Unknown error"}</p>`;
+      }
+    })
+    .catch(err => {
+      console.error("Upload failed", err);
+      uploadResult.innerHTML = `<p class="error-message">❌ Upload failed. Please try again.</p>`;
+    })
+    .finally(() => {
+      // Reset button state
+      uploadBtn.disabled = false;
+      uploadBtnText.textContent = 'Upload Files';
+    });
+  });
+
+  // Add file input change handler for better UX
+  document.querySelector('input[type="file"]').addEventListener('change', function() {
+    const fileCount = this.files.length;
+    if (fileCount > 0) {
+      const uploadResult = document.getElementById('uploadResult');
+      uploadResult.innerHTML = `<p style="color: #666;">📎 ${fileCount} file${fileCount > 1 ? 's' : ''} selected. Ready to upload!</p>`;
+    }
+  });
+  </script>
+</body>
+</html>

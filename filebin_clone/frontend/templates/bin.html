@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bin {{ bin_id }} - FileBin</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .header-left {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .header h2 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin: 0;
+        }
+
+        .back-link {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+
+        .back-link:hover {
+            color: #5a6fd8;
+            text-decoration: underline;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        #userInfo {
+            background: #e8f4fd;
+            color: #1565c0;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            border: 1px solid #bbdefb;
+        }
+
+        .logout-btn {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .logout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .card h3 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .share-section {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .share-input {
+            flex: 1;
+            min-width: 200px;
+            padding: 12px;
+            border: 1px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 14px;
+            background: #f8fafc;
+            color: #4a5568;
+        }
+
+        .copy-btn {
+            background: linear-gradient(135deg, #48bb78, #38a169);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .copy-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(72, 187, 120, 0.3);
+        }
+
+        .file-input {
+            width: 100%;
+            padding: 16px;
+            border: 2px dashed #cbd5e0;
+            border-radius: 12px;
+            background: #f8fafc;
+            color: #4a5568;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+
+        .file-input:hover {
+            border-color: #667eea;
+            background: #edf2f7;
+        }
+
+        .upload-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 14px 24px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .upload-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .files-card {
+            grid-column: 1 / -1;
+        }
+
+        .files-list {
+            list-style: none;
+            display: grid;
+            gap: 12px;
+        }
+
+        .file-item {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s ease;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .file-item:hover {
+            background: #edf2f7;
+            border-color: #cbd5e0;
+        }
+
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .file-name {
+            font-weight: 500;
+            color: #2d3748;
+            word-break: break-all;
+        }
+
+        .file-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .download-btn {
+            background: #e6fffa;
+            color: #234e52;
+            border: 1px solid #81e6d9;
+            padding: 6px 12px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .download-btn:hover {
+            background: #b2f5ea;
+            transform: translateY(-1px);
+        }
+
+        .delete-btn {
+            background: #fed7d7;
+            color: #742a2a;
+            border: 1px solid #feb2b2;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .delete-btn:hover {
+            background: #fbb6ce;
+            transform: translateY(-1px);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 24px;
+        }
+
+        .download-all-btn {
+            background: linear-gradient(135deg, #4299e1, #3182ce);
+            color: white;
+            border: none;
+            padding: 14px 24px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(66, 153, 225, 0.3);
+        }
+
+        .download-all-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(66, 153, 225, 0.4);
+        }
+
+        .delete-bin-btn {
+            background: linear-gradient(135deg, #f56565, #e53e3e);
+            color: white;
+            border: none;
+            padding: 14px 24px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(245, 101, 101, 0.3);
+        }
+
+        .delete-bin-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(245, 101, 101, 0.4);
+        }
+
+        .error-message {
+            background: #fed7d7;
+            color: #742a2a;
+            border: 1px solid #feb2b2;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .success-message {
+            background: #c6f6d5;
+            color: #22543d;
+            border: 1px solid #9ae6b4;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 16px;
+        }
+
+        .loading {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .loading::after {
+            content: '';
+            width: 16px;
+            height: 16px;
+            border: 2px solid #667eea;
+            border-top: 2px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card {
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+        .card:nth-child(2) {
+            animation-delay: 0.1s;
+        }
+
+        .files-card {
+            animation-delay: 0.2s;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .header-right {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .share-section {
+                flex-direction: column;
+            }
+
+            .share-input {
+                min-width: unset;
+            }
+
+            .card {
+                padding: 24px;
+            }
+
+            body {
+                padding: 15px;
+            }
+
+            .file-item {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .file-actions {
+                justify-content: center;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .card {
+                padding: 20px;
+            }
+
+            .header {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header Section -->
+        <div class="header">
+            <div class="header-left">
+                <h2>📦 Bin: {{ bin_id }}</h2>
+                <a href="{{ url_for('main.dashboard') }}" class="back-link">← Back to Dashboard</a>
+            </div>
+            <div class="header-right">
+                <p id="userInfo" class="loading">Loading user...</p>
+                <form method="POST" action="{{ url_for('main.logout') }}" style="margin: 0;">
+          <button type="submit" class="logout-btn">Logout</button>
+        </form>
+            </div>
+        </div>
+
+        {% if error %}
+            <div class="error-message">{{ error }}</div>
+        {% endif %}
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Share Link Card -->
+            <div class="card">
+                <h3><span>🔗</span> Share Bin</h3>
+                <div class="share-section">
+                    <input type="text" id="shareLink" class="share-input" 
+                           value="{{ request.url_root }}view/bin/{{ bin_id }}" readonly>
+                    <button onclick="copyShareLink()" class="copy-btn">📋 Copy Link</button>
+                </div>
+            </div>
+
+            <!-- Upload More Files Card -->
+             {% if is_owner %}
+            <div class="card">
+                
+                <h3><span>📤</span> Upload More Files</h3>
+                <form id="uploadForm" enctype="multipart/form-data">
+                    <input type="file" name="file" multiple class="file-input">
+                    <button type="submit" class="upload-btn">
+                        <span id="uploadBtnText">Upload Files</span>
+                    </button>
+                </form>
+                <div id="uploadResult"></div>
+                 
+            </div>
+             {% endif %}
+        </div>
+
+        <!-- Files Card -->
+        <div class="card files-card">
+            <h3><span>📁</span> Files ({{ files|length }})</h3>
+            
+            {% if files %}
+                <ul class="files-list">
+                    {% for file in files %}
+                    <li class="file-item">
+                        <div class="file-info">
+                            <span>📄</span>
+                            <span class="file-name">{{ file.filename }}</span>
+                        </div>
+                        <div class="file-actions">
+                            <a href="{{ file.download_url }}" class="download-btn">⬇️ Download</a>
+                            {% if is_owner %}
+                                <button class="delete-file delete-btn" data-filename="{{ file.filename }}">🗑️ Delete</button>
+                            {% endif %}
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+
+                <div class="action-buttons">
+                    <a href="/bin/{{ bin_id }}/download_all" class="download-all-btn">
+                        📦 Download All Files
+                    </a>
+                    {% if is_owner %}
+                        <button id="deleteBinBtn" class="delete-bin-btn">
+                            🗑️ Delete Entire Bin
+                        </button>
+                    {% endif %}
+                </div>
+            {% else %}
+                <div style="text-align: center; padding: 40px; color: #718096;">
+                    <span style="font-size: 48px; display: block; margin-bottom: 16px;">📂</span>
+                    <p>No files in this bin yet.</p>
+                    <p style="font-size: 14px; margin-top: 8px;">Upload some files using the form above!</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Hidden form for bin deletion -->
+        <form method="post" action="/bin/{{ bin_id }}" style="display: none;" id="deleteBinForm">
+            <input type="hidden" name="_method" value="DELETE">
+        </form>
+    </div>
+
+    <script>
+        const token = "{{ session['access_token'] }}";
+        const binId = "{{ bin_id }}";
+
+        // Fetch user info
+        fetch("/auth/me", {
+            method: "GET",
+            headers: {
+                "Authorization": "Bearer " + token
+            }
+        })
+        .then(res => res.json())
+        .then(user => {
+            if (user.username) {
+                document.getElementById("userInfo").innerText = `👤 ${user.username}`;
+                document.getElementById("userInfo").classList.remove("loading");
+            } else {
+                document.getElementById("userInfo").innerText = "❌ Failed to fetch user info.";
+                document.getElementById("userInfo").classList.remove("loading");
+            }
+        })
+        .catch(err => {
+            console.error("Failed to fetch /auth/me:", err);
+            document.getElementById("userInfo").innerText = "❌ Failed to fetch user.";
+            document.getElementById("userInfo").classList.remove("loading");
+        });
+
+        // Handle file upload
+        document.getElementById("uploadForm").addEventListener("submit", function (event) {
+            event.preventDefault();
+
+            const formData = new FormData(this);
+            const uploadBtn = document.querySelector('.upload-btn');
+            const uploadBtnText = document.getElementById('uploadBtnText');
+            const uploadResult = document.getElementById('uploadResult');
+
+            // Show loading state
+            uploadBtn.disabled = true;
+            uploadBtnText.innerHTML = '<span class="loading">Uploading...</span>';
+
+            fetch(`/bin/${binId}/upload`, {
+                method: "POST",
+                headers: {
+                    "Authorization": "Bearer " + token
+                },
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.error) {
+                    uploadResult.innerHTML = `<div class="error-message">❌ ${data.error}</div>`;
+                } else {
+                    uploadResult.innerHTML = `<div class="success-message">✅ Files uploaded successfully! Refreshing...</div>`;
+                    setTimeout(() => location.reload(), 1500);
+                }
+            })
+            .catch(err => {
+                console.error("Upload failed", err);
+                uploadResult.innerHTML = `<div class="error-message">❌ Upload failed. Please try again.</div>`;
+            })
+            .finally(() => {
+                uploadBtn.disabled = false;
+                uploadBtnText.textContent = 'Upload Files';
+            });
+        });
+
+        // Handle individual file deletion
+        document.querySelectorAll(".delete-file").forEach(button => {
+            button.addEventListener("click", function () {
+                const filename = this.dataset.filename;
+                
+                if (!confirm(`Are you sure you want to delete "${filename}"?`)) {
+                    return;
+                }
+
+                this.disabled = true;
+                this.textContent = 'Deleting...';
+
+                fetch(`/bin/${binId}/file/${filename}`, {
+                    method: "DELETE",
+                    headers: {
+                        "Authorization": "Bearer " + token
+                    }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.message) {
+                        alert("✅ Deleted: " + filename);
+                        location.reload();
+                    } else {
+                        alert("❌ Error: " + (data.error || "Failed to delete file"));
+                        this.disabled = false;
+                        this.textContent = '🗑️ Delete';
+                    }
+                })
+                .catch(err => {
+                    console.error("Delete failed", err);
+                    alert("❌ Failed to delete file");
+                    this.disabled = false;
+                    this.textContent = '🗑️ Delete';
+                });
+            });
+        });
+
+        // Handle bin deletion
+        const deleteBinBtn = document.getElementById("deleteBinBtn");
+        if (deleteBinBtn) {
+            deleteBinBtn.addEventListener("click", function () {
+                if (!confirm("⚠️ Are you sure you want to delete this entire bin? This action cannot be undone!")) {
+                    return;
+                }
+
+                this.disabled = true;
+                this.textContent = 'Deleting Bin...';
+
+                fetch(`/bin/${binId}`, {
+                    method: "DELETE",
+                    headers: {
+                        "Authorization": "Bearer " + token
+                    }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.message) {
+                        alert("✅ Bin deleted successfully");
+                        window.location.href = "/dashboard";
+                    } else {
+                        alert("❌ Error: " + (data.error || "Failed to delete bin"));
+                        this.disabled = false;
+                        this.textContent = '🗑️ Delete Entire Bin';
+                    }
+                })
+                .catch(err => {
+                    console.error("Delete bin failed", err);
+                    alert("❌ Failed to delete bin");
+                    this.disabled = false;
+                    this.textContent = '🗑️ Delete Entire Bin';
+                });
+            });
+        }
+
+        // Copy share link function
+        function copyShareLink() {
+            const linkInput = document.getElementById("shareLink");
+            linkInput.select();
+            linkInput.setSelectionRange(0, 99999);
+            
+            navigator.clipboard.writeText(linkInput.value)
+                .then(() => {
+                    const copyBtn = document.querySelector('.copy-btn');
+                    const originalText = copyBtn.textContent;
+                    copyBtn.textContent = '✅ Copied!';
+                    copyBtn.style.background = 'linear-gradient(135deg, #48bb78, #38a169)';
+                    
+                    setTimeout(() => {
+                        copyBtn.textContent = originalText;
+                        copyBtn.style.background = '';
+                    }, 2000);
+                })
+                .catch(err => {
+                    console.error("Copy failed", err);
+                    alert("❌ Failed to copy link");
+                });
+        }
+
+        // Add file input change handler
+        document.querySelector('input[type="file"]').addEventListener('change', function() {
+            const fileCount = this.files.length;
+            if (fileCount > 0) {
+                const uploadResult = document.getElementById('uploadResult');
+                uploadResult.innerHTML = `<div style="color: #666; font-style: italic; margin-top: 12px;">📎 ${fileCount} file${fileCount > 1 ? 's' : ''} selected. Ready to upload!</div>`;
+            }
+        });
+    </script>
+</body>
+</html>
