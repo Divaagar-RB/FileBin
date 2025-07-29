@@ -218,6 +218,11 @@
             </div>
         </div>
     </div>
+        {% if error %}
+    <script>
+        alert("{{ error | escape | replace('\n', ' ') }}");
+    </script>
+    {% endif %}
      <script>
     document.getElementById('loginForm').addEventListener('submit', function(e) {
       const username = this.username.value;

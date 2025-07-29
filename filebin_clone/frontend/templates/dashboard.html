@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -240,6 +241,146 @@
       font-size: 20px;
     }
 
+    /* Bin Selection Styles */
+    .bin-selection {
+      margin-bottom: 20px;
+      padding: 16px;
+      background: #f8fafc;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+    }
+
+    .bin-selection label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: #4a5568;
+    }
+
+    .bin-selection select {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #cbd5e0;
+      border-radius: 6px;
+      background: white;
+      font-size: 14px;
+      color: #4a5568;
+    }
+
+    .bin-selection select:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    /* Recent Bins Card */
+    .bins-list {
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .bin-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px;
+      margin-bottom: 8px;
+      background: #f8fafc;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+      transition: all 0.2s ease;
+    }
+
+    .bin-item:hover {
+      background: #edf2f7;
+      border-color: #cbd5e0;
+    }
+
+    .bin-info {
+      flex: 1;
+    }
+
+    .bin-id {
+      font-weight: 600;
+      color: #2d3748;
+      font-size: 14px;
+    }
+
+    .bin-meta {
+      font-size: 12px;
+      color: #718096;
+      margin-top: 2px;
+    }
+
+    .bin-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-small {
+      padding: 4px 8px;
+      font-size: 12px;
+      border-radius: 4px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .btn-view {
+      background: #e3f2fd;
+      color: #1565c0;
+    }
+
+    .btn-view:hover {
+      background: #bbdefb;
+    }
+
+    .btn-select {
+      background: #f3e5f5;
+      color: #7b1fa2;
+    }
+
+    .btn-select:hover {
+      background: #e1bee7;
+    }
+
+    .btn-delete {
+      background: #ffebee;
+      color: #c62828;
+    }
+
+    .btn-delete:hover {
+      background: #ffcdd2;
+    }
+
+    /* Alert styles */
+    .alert {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 16px 20px;
+      border-radius: 8px;
+      color: white;
+      font-weight: 500;
+      z-index: 1000;
+      transform: translateX(400px);
+      transition: transform 0.3s ease;
+    }
+
+    .alert.show {
+      transform: translateX(0);
+    }
+
+    .alert.success {
+      background: #4caf50;
+    }
+
+    .alert.error {
+      background: #f44336;
+    }
+
     /* Responsive Design */
     @media (max-width: 768px) {
       .main-content {
@@ -262,6 +403,17 @@
 
       .header h1 {
         font-size: 24px;
+      }
+
+      .bin-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+      }
+
+      .bin-actions {
+        width: 100%;
+        justify-content: flex-end;
       }
     }
 
@@ -323,6 +475,16 @@
       <!-- Upload Card -->
       <div class="card upload-card">
         <h3><span class="icon">📤</span> Upload Files</h3>
+        
+        <!-- Bin Selection -->
+        <div class="bin-selection">
+          <label for="binSelect">Choose upload destination:</label>
+          <select id="binSelect">
+            <option value="new">📁 Create New Bin</option>
+            <option value="" disabled>─────────── Recent Bins ───────────</option>
+          </select>
+        </div>
+
         <form id="uploadForm" enctype="multipart/form-data">
           <div class="file-input-wrapper">
             <input type="file" name="file" multiple class="file-input" 
@@ -334,18 +496,11 @@
         </form>
       </div>
 
-      <!-- Quick Actions Card -->
+      <!-- Recent Bins Card -->
       <div class="card">
-        <h3><span class="icon">⚡</span> Quick Actions</h3>
-        <div style="display: flex; flex-direction: column; gap: 12px;">
-          <button onclick="document.querySelector('input[type=file]').click()" 
-                  style="padding: 12px; background: #e3f2fd; color: #1565c0; border: 1px solid #bbdefb; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
-            📁 Browse Files
-          </button>
-          <button onclick="window.location.reload()" 
-                  style="padding: 12px; background: #f3e5f5; color: #7b1fa2; border: 1px solid #ce93d8; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
-            🔄 Refresh Dashboard
-          </button>
+        <h3><span class="icon">📂</span> Recent Bins</h3>
+        <div id="recentBins" class="bins-list">
+          <p class="loading">Loading your bins...</p>
         </div>
       </div>
     </div>
@@ -361,6 +516,30 @@
 
   <script>
   const token = "{{ session['access_token'] }}";
+  let userBins = [];
+  
+  // Show alert function
+  function showAlert(message, type) {
+    // Remove existing alerts
+    const existingAlert = document.querySelector('.alert');
+    if (existingAlert) {
+      existingAlert.remove();
+    }
+
+    const alert = document.createElement('div');
+    alert.className = `alert ${type}`;
+    alert.textContent = message;
+    document.body.appendChild(alert);
+
+    // Show alert
+    setTimeout(() => alert.classList.add('show'), 100);
+
+    // Hide alert after 3 seconds
+    setTimeout(() => {
+      alert.classList.remove('show');
+      setTimeout(() => alert.remove(), 300);
+    }, 3000);
+  }
   
   // Fetch user info
   fetch("/auth/me", {
@@ -385,20 +564,160 @@
     document.getElementById("userInfo").classList.remove("loading");
   });
 
+  // Fetch user bins
+  function loadUserBins(forceRefresh = false) {
+    const url = forceRefresh 
+      ? "http://localhost:5000/user/bins?refresh=true" 
+      : "http://localhost:5000/user/bins";
+      
+    fetch(url, {
+      method: "GET",
+      headers: {
+        "Authorization": "Bearer " + token
+      }
+    })
+    .then(res => res.json())
+    .then(data => {
+      userBins = data.bins || [];
+      console.log(`✅ Loaded ${userBins.length} bins`, userBins);
+      displayRecentBins();
+      populateBinSelect();
+    })
+    .catch(err => {
+      console.error("Failed to fetch user bins:", err);
+      document.getElementById("recentBins").innerHTML = '<p style="color: #e53e3e;">Failed to load bins</p>';
+    });
+  }
+
+  // Display recent bins
+  function displayRecentBins() {
+    const recentBinsDiv = document.getElementById("recentBins");
+    
+    if (userBins.length === 0) {
+      recentBinsDiv.innerHTML = '<p style="color: #666; font-style: italic;">No bins yet. Upload some files to get started!</p>';
+      return;
+    }
+
+    const binsHtml = userBins.slice(0, 5).map(bin => `
+      <div class="bin-item">
+        <div class="bin-info">
+          <div class="bin-id">📁 ${bin.bin_id}</div>
+          <div class="bin-meta">${bin.file_count} file${bin.file_count !== 1 ? 's' : ''} • ${bin.created_at ? new Date(bin.created_at).toLocaleDateString() : 'Unknown date'}</div>
+        </div>
+        <div class="bin-actions">
+          <a href="/view/bin/${bin.bin_id}" class="btn-small btn-view">View</a>
+          <button onclick="selectBinForUpload('${bin.bin_id}')" class="btn-small btn-select">Select</button>
+          <button onclick="deleteBin('${bin.bin_id}')" class="btn-small btn-delete">Delete</button>
+        </div>
+      </div>
+    `).join('');
+
+    recentBinsDiv.innerHTML = binsHtml;
+  }
+
+  // Populate bin selection dropdown
+  function populateBinSelect() {
+    const binSelect = document.getElementById("binSelect");
+    
+    // Clear existing options except the first two
+    while (binSelect.children.length > 2) {
+      binSelect.removeChild(binSelect.lastChild);
+    }
+
+    // Add user bins to dropdown
+    userBins.forEach(bin => {
+      const option = document.createElement('option');
+      option.value = bin.bin_id;
+      option.textContent = `📁 ${bin.bin_id} (${bin.file_count} files)`;
+      binSelect.appendChild(option);
+    });
+  }
+
+  // Select bin for upload
+  function selectBinForUpload(binId) {
+    const binSelect = document.getElementById("binSelect");
+    binSelect.value = binId;
+    
+    // Scroll to upload form
+    document.querySelector('.upload-card').scrollIntoView({ behavior: 'smooth' });
+    
+    // Show feedback
+    const uploadResult = document.getElementById('uploadResult');
+    uploadResult.innerHTML = `<p style="color: #1565c0;">📁 Selected bin: <strong>${binId}</strong> for upload</p>`;
+  }
+
+  // Delete bin function - FIXED
+  async function deleteBin(binId) {
+    if (!confirm(`Are you sure you want to delete bin ${binId} and all its files? This action cannot be undone.`)) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`http://localhost:5000/bin/${binId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}` // Use the correct token variable
+        }
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        console.log(`✅ Bin ${binId} deleted.`);
+        showAlert('Bin deleted successfully!', 'success');
+        
+        // Force refresh the bins list with cache bypass
+        await loadUserBins(true); // Force refresh = true
+        
+        // Clear upload result if the deleted bin was selected
+        const binSelect = document.getElementById("binSelect");
+        if (binSelect.value === binId) {
+          binSelect.value = "new";
+          document.getElementById('uploadResult').innerHTML = '<p style="color: #666; font-style: italic;">No uploads yet. Select files above to get started!</p>';
+        }
+      } else {
+        showAlert(result.error || 'Failed to delete bin.', 'error');
+      }
+    } catch (error) {
+      console.error('Error deleting bin:', error);
+      showAlert('Something went wrong.', 'error');
+    }
+  }
+
   // Handle file upload
   document.getElementById("uploadForm").addEventListener("submit", function (event) {
     event.preventDefault();
 
     const formData = new FormData(this);
+    const selectedBin = document.getElementById("binSelect").value;
     const uploadBtn = document.querySelector('.upload-btn');
     const uploadBtnText = document.getElementById('uploadBtnText');
     const uploadResult = document.getElementById('uploadResult');
+
+    // Clear previous messages before starting upload
+    uploadResult.innerHTML = '';
+
+    // Check if files are selected
+    const fileInput = document.querySelector('input[type="file"]');
+    if (!fileInput.files.length) {
+      uploadResult.innerHTML = '<p class="error-message">❌ Please select files to upload</p>';
+      return;
+    }
 
     // Show loading state
     uploadBtn.disabled = true;
     uploadBtnText.innerHTML = '<span class="loading">Uploading...</span>';
 
-    fetch("http://localhost:5000/upload", {
+    // Determine upload endpoint
+    let uploadUrl = "http://localhost:5000/upload";
+    let isExistingBin = false;
+
+    if (selectedBin && selectedBin !== "new") {
+      uploadUrl = `http://localhost:5000/bin/${selectedBin}/upload`;
+      isExistingBin = true;
+    }
+
+    fetch(uploadUrl, {
       method: "POST",
       headers: {
         "Authorization": "Bearer " + token
@@ -407,23 +726,44 @@
     })
     .then(response => {
       if (!response.ok) {
-        throw new Error("Upload failed");
+        return response.json().then(errData => { throw new Error(errData.error || "Upload failed"); });
       }
       return response.json();
     })
     .then(data => {
-      if (data.bin_id) {
-        uploadResult.innerHTML = `<p class="success-message">✅ Upload successful! Redirecting to your files...</p>`;
+      const binId = isExistingBin ? selectedBin : data.bin_id;
+      const filesUploadedCount = isExistingBin ? (data.files ? data.files.length : 0) : (data.files_uploaded || 0);
+
+      if (filesUploadedCount > 0 || (isExistingBin && data.message)) {
+        uploadResult.innerHTML = `<p class="success-message">✅ Successfully added ${filesUploadedCount} file${filesUploadedCount !== 1 ? 's' : ''} to bin <strong>${binId}</strong>!</p>`;
+
+        // Refresh the bins list to show updated file counts
         setTimeout(() => {
-          window.location.href = `/view/bin/${data.bin_id}`;
-        }, 1500);
+          loadUserBins();
+        }, 500);
+
+        // Show view bin option
+        setTimeout(() => {
+          uploadResult.innerHTML += `<br><a href="/view/bin/${binId}" style="display: inline-block; margin-top: 10px; padding: 8px 16px; background: #667eea; color: white; text-decoration: none; border-radius: 6px;">📁 View Bin ${binId}</a>`;
+        }, 800);
+
+        // Reset form and file input but keep the selected bin for existing bin uploads
+        document.getElementById("uploadForm").reset();
+        if (!isExistingBin) {
+          document.getElementById("binSelect").value = "new";
+        } else {
+          document.getElementById("binSelect").value = binId;
+        }
+        
+        fileInput.value = '';
+
       } else {
-        uploadResult.innerHTML = `<p class="error-message">❌ Upload failed: ${data.error || "Unknown error"}</p>`;
+        uploadResult.innerHTML = `<p class="error-message">❌ Upload failed: No files uploaded or unexpected response.</p>`;
       }
     })
     .catch(err => {
       console.error("Upload failed", err);
-      uploadResult.innerHTML = `<p class="error-message">❌ Upload failed. Please try again.</p>`;
+      uploadResult.innerHTML = `<p class="error-message">❌ Upload failed: ${err.message || "Please try again."}</p>`;
     })
     .finally(() => {
       // Reset button state
@@ -435,11 +775,29 @@
   // Add file input change handler for better UX
   document.querySelector('input[type="file"]').addEventListener('change', function() {
     const fileCount = this.files.length;
+    const selectedBin = document.getElementById("binSelect").value;
+    
+    const uploadResult = document.getElementById('uploadResult');
     if (fileCount > 0) {
-      const uploadResult = document.getElementById('uploadResult');
-      uploadResult.innerHTML = `<p style="color: #666;">📎 ${fileCount} file${fileCount > 1 ? 's' : ''} selected. Ready to upload!</p>`;
+      const destination = selectedBin === "new" ? "a new bin" : `bin ${selectedBin}`;
+      uploadResult.innerHTML = `<p style="color: #666;">📎 ${fileCount} file${fileCount > 1 ? 's' : ''} selected for upload to ${destination}. Ready to upload!</p>`;
+    } else {
+      uploadResult.innerHTML = '<p style="color: #666; font-style: italic;">No uploads yet. Select files above to get started!</p>';
     }
   });
+
+  // Bin selection change handler
+  document.getElementById("binSelect").addEventListener('change', function() {
+    const fileInput = document.querySelector('input[type="file"]');
+    if (fileInput.files.length > 0) {
+      fileInput.dispatchEvent(new Event('change'));
+    } else {
+      document.getElementById('uploadResult').innerHTML = '<p style="color: #666; font-style: italic;">No uploads yet. Select files above to get started!</p>';
+    }
+  });
+
+  // Load user bins on page load
+  loadUserBins();
   </script>
 </body>
 </html>

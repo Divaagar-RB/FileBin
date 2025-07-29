@@ -1,9 +1,9 @@
 from flask import Flask
-from filebin_clone.backend.extensions import db
-from filebin_clone.api.routes import bp as api_bp
-from filebin_clone.backend.extensions import jwt
-from filebin_clone.api.auth import auth_bp
-from filebin_clone.frontend.main import main as frontend_bp
+from backend.extensions import db
+from api.routes import bp as api_bp
+from backend.extensions import jwt
+from api.auth import auth_bp
+from frontend.main import main as frontend_bp
 from flask_cors import CORS
 def create_app():
     app = Flask(__name__)
